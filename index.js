@@ -16,11 +16,40 @@ app.get(`/`, (req, res) => {
   res.render('index', { posts: posts });
  });
 });
+
+app.get('/posts',(rep,res) => {
+  post.find((err,posts) => {
+    res.json(posts);
+  });
+});
+
+app.get('/posts/:id',(req,res) => {
+  Post.findById(req.params.id,(err,post) => {
+    res.render('post', { post: post });
+  });
+});
+
 app.get(`/new`, (req, res) => {
   res.render(`new_post`);
 });
+
+app.post('/comments', (req, res) => {
+  console.log('Recibimos:');
+  console.log(req.body);
+  const { name, comment, id } = req.body;
+  const newComment = { name, comment };
+  Post.findById(id, (err,post) => {
+    post.comments.push(newComment);
+    console.log(post);
+    post.save((err, post) => {
+      res.redirect('/posts/' + id);
+    });
+  });
+});
+
 app.post(`/new`, (req, res) => {
   //guardemos un post a la base de datos
+  console.log('Datos recibidos:');
   console.log(req.body);
   const {title, author, topic, content } = req.body;
   const post = new Post({title, author, topic, content });
